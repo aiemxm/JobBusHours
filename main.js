@@ -1,3 +1,6 @@
+require("dotenv").config();
+
+const apiKey = process.env.API_KEY;
 let nextBusObject = {
   hour: "",
   line: "",
@@ -6,7 +9,7 @@ let hoursArray = [];
 
 const getNextBusHours = async () => {
   await fetch(
-    "http://api.tisseo.fr/v2/stops_schedules.json?key=46cb1cc7-907c-4d9a-a39a-00f4be153433&number=5&stopAreaId=stop_area:SA_1312&dateTime=2023-03-11+17:45"
+    `http://api.tisseo.fr/v2/stops_schedules.json?key=${apiKey}&number=5&stopAreaId=stop_area:SA_1312&dateTime=2023-03-11+17:45`
   )
     .then((response) => response.json())
     .then((data) => {
