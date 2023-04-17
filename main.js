@@ -1,4 +1,5 @@
 require("dotenv").config();
+const dayjs = require('dayjs')
 
 const apiKey = process.env.API_KEY;
 let nextBusObject = {
@@ -27,10 +28,52 @@ const getNextBusHours = async () => {
       const nextBus = Math.floor((hoursArray[0].hour - Date.now()) / 60000);
       const secondBus = Math.floor((hoursArray[1].hour - Date.now()) / 60000);
 
+      const result =  `Prochains bus destination Basso Cambo :
+      ${hoursArray[0].line} : ${nextBus} mn
+      ${hoursArray[1].line} : ${secondBus} mn`;
       console.log(
-        `le prochain bus ${hoursArray[0].line} à destination de Basso Cambo passe dans ${nextBus} minutes, le suivant est un ${hoursArray[1].line} et passe dans ${secondBus} minutes`
+        `Prochains bus destination Basso Cambo :
+        ${hoursArray[0].line} : ${nextBus} mn
+        ${hoursArray[1].line} : ${secondBus} mn`
       );
+
+      return result;
     });
 };
 
-getNextBusHours();
+
+// définir l'heure à laquelle vous souhaitez exécuter la fonction
+const heureExecution = { heures: 17, minutes: 55, secondes: 0 };
+
+// fonction pour calculer le temps restant jusqu'à l'heure d'exécution
+function tempsRestant() {
+  const maintenant = new Date();
+  const heureActuelle = maintenant.getHours();
+  const minuteActuelle = maintenant.getMinutes();
+  const secondeActuelle = maintenant.getSeconds();
+  
+  let tempsEnMs = 0;
+  
+  if (heureActuelle < heureExecution.heures || (heureActuelle === heureExecution.heures && minuteActuelle < heureExecution.minutes) || (heureActuelle === heureExecution.heures && minuteActuelle === heureExecution.minutes && secondeActuelle < heureExecution.secondes)) {
+    tempsEnMs = (heureExecution.heures - heureActuelle) * 3600 * 1000 + (heureExecution.minutes - minuteActuelle) * 60 * 1000 + (heureExecution.secondes - secondeActuelle) * 1000;
+  } else {
+    tempsEnMs = (24 - heureActuelle + heureExecution.heures) * 3600 * 1000 + (heureExecution.minutes - minuteActuelle) * 60 * 1000 + (heureExecution.secondes - secondeActuelle) * 1000;
+  }
+  
+  return tempsEnMs;
+}
+
+// fonction pour exécuter la fonction et planifier la prochaine exécution
+function executerEtPlanifier() {
+  getNextBusHours();
+  
+  // calculer le temps restant jusqu'à l'heure d'exécution suivante
+  const tempsEnMs = tempsRestant();
+  
+  // planifier la prochaine exécution
+  setTimeout(executerEtPlanifier, tempsEnMs);
+}
+
+// planifier la première exécution
+const tempsEnMs = tempsRestant();
+setTimeout(executerEtPlanifier, tempsEnMs);
